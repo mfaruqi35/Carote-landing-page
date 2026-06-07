@@ -7,14 +7,14 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Carote - Kualitas Premium untuk Dapur Anda",
-    template: "%s | Carote Indonesia",
+    default: "RYCH - Kualitas Premium untuk Dapur Anda",
+    template: "%s | RYCH Indonesia",
   },
   description:
-    "Temukan koleksi peralatan masak premium Carote. Material berkualitas tinggi, desain minimalis elegan, dan teknologi anti-lengket terdepan untuk dapur modern Anda.",
+    "Temukan koleksi peralatan masak premium RYCH. Material berkualitas tinggi, desain minimalis elegan, dan teknologi anti-lengket terdepan untuk dapur modern Anda.",
   keywords: [
-    "carote",
-    "carote indonesia",
+    "rych",
+    "rych indonesia",
     "peralatan masak premium",
     "alat masak anti lengket",
     "cookware premium",
@@ -25,11 +25,11 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Carote - Kualitas Premium untuk Dapur Anda",
+    title: "RYCH - Kualitas Premium untuk Dapur Anda",
     description:
-      "Temukan koleksi peralatan masak premium Carote. Material berkualitas tinggi, desain minimalis elegan, dan teknologi anti-lengket terdepan untuk dapur modern Anda.",
+      "Temukan koleksi peralatan masak premium RYCH. Material berkualitas tinggi, desain minimalis elegan, dan teknologi anti-lengket terdepan untuk dapur modern Anda.",
     url: "/",
-    siteName: "Carote Indonesia",
+    siteName: "RYCH Indonesia",
     locale: "id_ID",
     type: "website",
     images: [
@@ -37,15 +37,15 @@ export const metadata: Metadata = {
         url: "/favicon.ico",
         width: 512,
         height: 512,
-        alt: "Carote Indonesia",
+        alt: "RYCH Indonesia",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Carote - Kualitas Premium untuk Dapur Anda",
+    title: "RYCH - Kualitas Premium untuk Dapur Anda",
     description:
-      "Koleksi cookware premium Carote untuk dapur modern yang elegan dan fungsional.",
+      "Koleksi cookware premium RYCH untuk dapur modern yang elegan dan fungsional.",
     images: ["/favicon.ico"],
   },
   robots: {
