@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef } from "react";
-import Lenis from "lenis";
+import LandingLayout from "./components/LandingLayout";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -33,334 +34,252 @@ const shadowHover = "0px 8px 16px rgba(53,49,46,0.12)";
 
 /* ─── Font constants matching globals.css CSS variables ─── */
 const HEADING_FONT = "var(--font-heading)";
-const UI_FONT      = "var(--font-ui)";
-const BODY_FONT    = "var(--font-body)";
+const UI_FONT = "var(--font-ui)";
+const BODY_FONT = "var(--font-body)";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SHOPEE_URL = "https://shopee.co.id/dewbracelets";
 
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "RYCH x Carote Cookware Premium",
+  description:
+    "Rekomendasi cookware premium untuk dapur modern Indonesia dengan lapisan anti-lengket, distribusi panas merata, dan material aman.",
+  brand: {
+    "@type": "Brand",
+    name: "Carote",
+  },
+  image: [HERO_IMG, FEATURE1_IMG, FEATURE2_IMG],
+  category: "Cookware",
+  url: `${SITE_URL}/#koleksi`,
+  offers: {
+    "@type": "AggregateOffer",
+    offerCount: "3",
+    priceCurrency: "IDR",
+    lowPrice: "299000",
+    highPrice: "2499000",
+    availability: "https://schema.org/InStock",
+    url: `${SITE_URL}/#koleksi`,
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "RYCH Affiliate Indonesia",
+  url: SITE_URL,
+  logo: `${SITE_URL}/favicon.ico`,
+  description:
+    "Platform affiliate Indonesia untuk rekomendasi alat masak premium dengan kurasi produk, panduan, dan perbandingan harga merchant terpercaya.",
+  sameAs: [],
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      availableLanguage: ["Indonesian"],
+      url: `${SITE_URL}/#hubungi-kami`,
+    },
+  ],
+};
 
 export default function Home() {
   const heroSectionRef = useRef<HTMLElement>(null);
   const heroTitleRef = useRef<HTMLHeadingElement>(null);
   const heroImageRef = useRef<HTMLDivElement>(null);
   const heroCtaRef = useRef<HTMLDivElement>(null);
-  const mobileNavRef = useRef<HTMLDivElement>(null);
-  const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    /* ── Lenis smooth scroll ── */
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-    lenis.on("scroll", ScrollTrigger.update);
-    const raf = (time: number) => {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    };
-    requestAnimationFrame(raf);
-    gsap.ticker.lagSmoothing(0);
+    // Kill stale ScrollTrigger instances from previous mounts (client-side nav)
+    ScrollTrigger.getAll().forEach((t) => t.kill());
 
-    /* ── Hero entrance ── */
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    if (heroTitleRef.current)
-      tl.from(heroTitleRef.current, { y: 60, opacity: 0, duration: 1.1 });
-    if (heroImageRef.current)
-      tl.from(
-        heroImageRef.current,
-        { y: 40, opacity: 0, scale: 0.97, duration: 1.2 },
-        "-=0.7",
+    // Clear only GSAP animation properties — NOT 'all', which would strip
+    // React's layout styles (position, display, flex, grid-column, etc.)
+    const gsapProps = "opacity,transform,visibility";
+    const animatedRefs = [
+      heroTitleRef.current,
+      heroImageRef.current,
+      heroCtaRef.current,
+    ].filter(Boolean);
+    gsap.set(animatedRefs, { clearProps: gsapProps });
+    document
+      .querySelectorAll<HTMLElement>(
+        "[data-reveal],[data-stagger-child],.js-bento,.js-spec-row,.js-divider",
+      )
+      .forEach((el) => gsap.set(el, { clearProps: gsapProps }));
+
+    const ctx = gsap.context(() => {
+      /* ── Hero entrance ── */
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      if (heroTitleRef.current)
+        tl.fromTo(
+          heroTitleRef.current,
+          { y: 60, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.1 },
+        );
+      if (heroImageRef.current)
+        tl.fromTo(
+          heroImageRef.current,
+          { y: 40, opacity: 0, scale: 0.97 },
+          { y: 0, opacity: 1, scale: 1, duration: 1.2 },
+          "-=0.7",
+        );
+      if (heroCtaRef.current)
+        tl.fromTo(
+          heroCtaRef.current,
+          { y: 24, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8 },
+          "-=0.6",
+        );
+
+      /* ── Hero parallax ── */
+      const heroImg = heroImageRef.current?.querySelector("img");
+      if (heroImg) {
+        gsap.to(heroImg, {
+          yPercent: -10,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroSectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
+
+      /* ── Scroll reveal: generic [data-reveal] ── */
+      document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
+        const dir = el.dataset.reveal ?? "up";
+        const delay = parseFloat(el.dataset.delay ?? "0");
+        const fromVars: gsap.TweenVars = { opacity: 0 };
+        const toVars: gsap.TweenVars = {
+          opacity: 1,
+          duration: 0.85,
+          delay,
+          ease: "power3.out",
+        };
+        if (dir === "up") {
+          fromVars.y = 50;
+          toVars.y = 0;
+        }
+        if (dir === "left") {
+          fromVars.x = -40;
+          toVars.x = 0;
+        }
+        if (dir === "right") {
+          fromVars.x = 40;
+          toVars.x = 0;
+        }
+        if (dir === "scale") {
+          fromVars.scale = 0.93;
+          toVars.scale = 1;
+        }
+        gsap.fromTo(el, fromVars, {
+          ...toVars,
+          scrollTrigger: {
+            trigger: el,
+            start: "top 88%",
+            toggleActions: "play none none none",
+          },
+        });
+      });
+
+      /* ── Stagger sections ── */
+      document
+        .querySelectorAll<HTMLElement>("[data-stagger]")
+        .forEach((sec) => {
+          const kids = sec.querySelectorAll<HTMLElement>("[data-stagger-child]");
+          gsap.fromTo(
+            kids,
+            { y: 40, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.85,
+              stagger: 0.15,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: sec,
+                start: "top 82%",
+                toggleActions: "play none none none",
+              },
+            },
+          );
+        });
+
+      /* ── Bento cells ── */
+      const bentoCells = document.querySelectorAll<HTMLElement>(".js-bento");
+      gsap.fromTo(
+        bentoCells,
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".js-bento-grid",
+            start: "top 80%",
+            toggleActions: "play none none none",
+          },
+        },
       );
-    if (heroCtaRef.current)
-      tl.from(
-        heroCtaRef.current,
-        { y: 24, opacity: 0, duration: 0.8 },
-        "-=0.6",
+
+      /* ── Spec table rows ── */
+      const rows = document.querySelectorAll<HTMLElement>(".js-spec-row");
+      gsap.fromTo(
+        rows,
+        { x: -30, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.55,
+          stagger: 0.07,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: ".js-spec-table",
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+        },
       );
 
-    /* ── Hero parallax ── */
-    const heroImg = heroImageRef.current?.querySelector("img");
-    if (heroImg) {
-      gsap.to(heroImg, {
-        yPercent: -10,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroSectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    }
-
-    /* ── Scroll reveal: generic [data-reveal] ── */
-    document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
-      const dir = el.dataset.reveal ?? "up";
-      const delay = parseFloat(el.dataset.delay ?? "0");
-      const from: gsap.TweenVars = {
-        opacity: 0,
-        duration: 0.85,
-        delay,
-        ease: "power3.out",
-      };
-      if (dir === "up") Object.assign(from, { y: 50 });
-      if (dir === "left") Object.assign(from, { x: -40 });
-      if (dir === "right") Object.assign(from, { x: 40 });
-      if (dir === "scale") Object.assign(from, { scale: 0.93 });
-      gsap.from(el, {
-        ...from,
-        scrollTrigger: {
-          trigger: el,
-          start: "top 88%",
-          toggleActions: "play none none none",
-        },
+      /* ── Divider lines ── */
+      document.querySelectorAll<HTMLElement>(".js-divider").forEach((d) => {
+        gsap.fromTo(
+          d,
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            transformOrigin: "left center",
+            duration: 0.7,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: d,
+              start: "top 92%",
+              toggleActions: "play none none none",
+            },
+          },
+        );
       });
     });
 
-    /* ── Stagger sections ── */
-    document.querySelectorAll<HTMLElement>("[data-stagger]").forEach((sec) => {
-      const kids = sec.querySelectorAll<HTMLElement>("[data-stagger-child]");
-      gsap.from(kids, {
-        y: 40,
-        opacity: 0,
-        duration: 0.85,
-        stagger: 0.15,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: sec,
-          start: "top 82%",
-          toggleActions: "play none none none",
-        },
-      });
-    });
-
-    /* ── Bento cells ── */
-    const bentoCells = document.querySelectorAll<HTMLElement>(".js-bento");
-    gsap.from(bentoCells, {
-      y: 50,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.08,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ".js-bento-grid",
-        start: "top 80%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    /* ── Spec table rows ── */
-    const rows = document.querySelectorAll<HTMLElement>(".js-spec-row");
-    gsap.from(rows, {
-      x: -30,
-      opacity: 0,
-      duration: 0.55,
-      stagger: 0.07,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: ".js-spec-table",
-        start: "top 85%",
-        toggleActions: "play none none none",
-      },
-    });
-
-    /* ── Divider lines ── */
-    document.querySelectorAll<HTMLElement>(".js-divider").forEach((d) => {
-      gsap.from(d, {
-        scaleX: 0,
-        transformOrigin: "left center",
-        duration: 0.7,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: d,
-          start: "top 92%",
-          toggleActions: "play none none none",
-        },
-      });
-    });
-
-    /* ── Mobile nav ── */
-    const burger = hamburgerRef.current;
-    const mNav = mobileNavRef.current;
-    const onBurger = () => {
-      burger?.classList.toggle("open");
-      mNav?.classList.toggle("open");
-      document.body.style.overflow = mNav?.classList.contains("open")
-        ? "hidden"
-        : "";
-    };
-    burger?.addEventListener("click", onBurger);
+    // Recalculate all ScrollTrigger positions after setup
+    ScrollTrigger.refresh();
 
     return () => {
-      lenis.destroy();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-      burger?.removeEventListener("click", onBurger);
+      ctx.revert();
     };
   }, []);
 
   /* ─── JSX ─────────────────────────────────────────────── */
   return (
-    <>
-      {/* ════════════ HEADER ════════════ */}
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          width: "100%",
-          height: 65,
-          zIndex: 50,
-          background: C.white,
-          borderBottom: `1px solid ${C.lightGray}`,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 32px",
-          }}
-        >
-          {/* Logo */}
-          <span
-            style={{
-              fontFamily: HEADING_FONT,
-              fontSize: 22,
-              fontWeight: 400,
-              color: C.charcoal,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            RYCH
-          </span>
-
-          {/* Desktop nav */}
-          <nav
-            style={{ display: "flex", alignItems: "center", gap: 40 }}
-            className="desktop-nav"
-          >
-            {["Koleksi", "Resep", "Tentang Kami"].map((item) => (
-              <a key={item} href="#" className="nav-link">
-                {item}
-              </a>
-            ))}
-          </nav>
-
-          {/* Actions */}
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <button
-              aria-label="Cart"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: C.charcoal,
-                display: "flex",
-                alignItems: "center",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.terracotta)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.charcoal)}
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: 22 }}
-              >
-                shopping_bag
-              </span>
-            </button>
-            <button
-              aria-label="Account"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: C.charcoal,
-                display: "flex",
-                alignItems: "center",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.terracotta)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.charcoal)}
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: 22 }}
-              >
-                person
-              </span>
-            </button>
-            <button
-              className="btn-primary desktop-cta"
-              style={{ padding: "12px 24px", fontSize: 13 }}
-            >
-              Beli Sekarang
-            </button>
-            {/* Hamburger */}
-            <button
-              ref={hamburgerRef}
-              className="hamburger"
-              aria-label="Menu"
-              style={{
-                display: "none",
-                flexDirection: "column",
-                gap: 5,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "8px 4px",
-              }}
-            >
-              <span className="hamburger-line" />
-              <span className="hamburger-line" />
-              <span className="hamburger-line" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile nav drawer */}
-      <div
-        ref={mobileNavRef}
-        className="mobile-nav"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          padding: "40px 32px",
-          gap: 32,
-        }}
-      >
-        {["Koleksi", "Resep", "Tentang Kami"].map((item) => (
-          <a
-            key={item}
-            href="#"
-            style={{
-              fontFamily: UI_FONT,
-              fontSize: 22,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              color: C.charcoal,
-              textDecoration: "none",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = C.terracotta)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = C.charcoal)}
-          >
-            {item}
-          </a>
-        ))}
-        <button
-          className="btn-primary"
-          style={{ width: "100%", marginTop: 16 }}
-        >
-          Beli Sekarang
-        </button>
-      </div>
-
+    <LandingLayout>
       <main>
         {/* ════════════ HERO ════════════ */}
         <section
           ref={heroSectionRef}
-          id="hero-section"
+          id="beranda"
           style={{
             minHeight: "100vh",
             background: C.offWhite,
@@ -404,6 +323,31 @@ export default function Home() {
             Kualitas Premium untuk Dapur Anda
           </h1>
 
+          <p
+            style={{
+              fontFamily: BODY_FONT,
+              fontSize: 18,
+              lineHeight: 1.7,
+              color: C.medGray,
+              maxWidth: 760,
+              margin: "0 auto 40px",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            Platform affiliate Indonesia untuk rekomendasi alat masak premium,
+            review cookware anti lengket, dan panduan memilih wajan terbaik
+            untuk dapur modern. Jelajahi{" "}
+            <a href="#koleksi" className="footer-link">
+              koleksi terkurasi
+            </a>{" "}
+            dan baca{" "}
+            <a href="#faq" className="footer-link">
+              FAQ pembelian
+            </a>{" "}
+            sebelum checkout.
+          </p>
+
           {/* Hero image */}
           <div
             ref={heroImageRef}
@@ -418,13 +362,14 @@ export default function Home() {
               zIndex: 1,
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={HERO_IMG}
-              alt="RYCH Premium Cookware Collection"
+              alt="Koleksi cookware premium untuk dapur modern Indonesia"
+              fill
+              priority
+              fetchPriority="high"
+              sizes="(max-width: 768px) 100vw, 960px"
               style={{
-                width: "100%",
-                height: "100%",
                 objectFit: "cover",
                 display: "block",
                 willChange: "transform",
@@ -455,13 +400,18 @@ export default function Home() {
               zIndex: 1,
             }}
           >
-            <button className="btn-primary">Jelajahi Koleksi</button>
-            <button className="btn-secondary">Pelajari Lebih Lanjut</button>
+            <a className="btn-primary" href="#koleksi">
+              Jelajahi Koleksi
+            </a>
+            <a className="btn-secondary" href="#panduan-memasak">
+              Pelajari Lebih Lanjut
+            </a>
           </div>
         </section>
 
         {/* ════════════ FEATURE 1 — Minimalis ════════════ */}
         <section
+          id="koleksi"
           style={{ padding: "120px 0", background: C.white }}
           data-stagger
         >
@@ -514,9 +464,13 @@ export default function Home() {
                   bertahan lintas generasi di dapur Anda.
                 </p>
                 <div>
-                  <button className="btn-secondary" style={{ marginTop: 8 }}>
+                  <a
+                    href="#faq"
+                    className="btn-secondary"
+                    style={{ marginTop: 8 }}
+                  >
                     Pelajari Lebih Lanjut
-                  </button>
+                  </a>
                 </div>
               </div>
 
@@ -543,6 +497,8 @@ export default function Home() {
                 <img
                   src={FEATURE1_IMG}
                   alt="Minimalist RYCH Pan"
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -566,6 +522,7 @@ export default function Home() {
 
         {/* ════════════ FEATURE 2 — Distribusi Panas ════════════ */}
         <section
+          id="panduan-memasak"
           style={{ padding: "120px 0", background: C.cream }}
           data-stagger
         >
@@ -601,6 +558,8 @@ export default function Home() {
                 <img
                   src={FEATURE2_IMG}
                   alt="Cooking with RYCH"
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -658,9 +617,13 @@ export default function Home() {
                   yang tak tertandingi setiap harinya.
                 </p>
                 <div>
-                  <button className="btn-primary" style={{ marginTop: 8 }}>
+                  <a
+                    href="#koleksi"
+                    className="btn-primary"
+                    style={{ marginTop: 8 }}
+                  >
                     Lihat Koleksi
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -768,6 +731,8 @@ export default function Home() {
                   <img
                     src={FEATURE1_IMG}
                     alt="Non-stick surface detail"
+                    loading="lazy"
+                    decoding="async"
                     style={{
                       width: "100%",
                       height: "100%",
@@ -988,6 +953,8 @@ export default function Home() {
                   <img
                     src={BENTO2_IMG}
                     alt="Ergonomic handle"
+                    loading="lazy"
+                    decoding="async"
                     style={{
                       width: "100%",
                       height: "100%",
@@ -1011,7 +978,10 @@ export default function Home() {
         </section>
 
         {/* ════════════ SPEC TABLE ════════════ */}
-        <section style={{ padding: "120px 0", background: C.white }}>
+        <section
+          id="spesifikasi"
+          style={{ padding: "120px 0", background: C.white }}
+        >
           <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 32px" }}>
             <div data-reveal="up" style={{ marginBottom: 48 }}>
               <div
@@ -1102,14 +1072,235 @@ export default function Home() {
                 flexWrap: "wrap",
               }}
             >
-              <button className="btn-primary">Beli Sekarang</button>
-              <button className="btn-secondary">Lihat Semua Produk</button>
+              <a className="btn-primary" href="#koleksi">
+                Beli Sekarang
+              </a>
+              <a className="btn-secondary" href="#beranda">
+                Lihat Semua Produk
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════ SEO FAQ + AFFILIATE DISCLOSURE ════════════ */}
+        <section
+          id="faq"
+          style={{ padding: "120px 0", background: C.offWhite }}
+        >
+          <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px" }}>
+            <div data-reveal="up" style={{ marginBottom: 40 }}>
+              <div
+                className="js-divider"
+                style={{
+                  width: 48,
+                  height: 2,
+                  background: C.terracotta,
+                  marginBottom: 24,
+                }}
+              />
+              <h2
+                style={{
+                  fontFamily: HEADING_FONT,
+                  fontWeight: 300,
+                  fontSize: "clamp(30px,3.5vw,46px)",
+                  lineHeight: 1.1,
+                  color: C.charcoal,
+                  marginBottom: 20,
+                }}
+              >
+                FAQ Affiliate Alat Masak Premium
+              </h2>
+              <p
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 17,
+                  lineHeight: 1.75,
+                  color: C.medGray,
+                  margin: 0,
+                }}
+              >
+                RYCH adalah platform affiliate yang membantu Anda membandingkan
+                rekomendasi produk cookware premium dari merchant partner. Untuk
+                detail material, lihat{" "}
+                <a href="#spesifikasi" className="footer-link">
+                  spesifikasi teknis
+                </a>{" "}
+                dan langsung{" "}
+                <a href="#koleksi" className="footer-link">
+                  jelajahi koleksi
+                </a>
+                .
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gap: 16 }}>
+              {[
+                {
+                  q: "Apa itu platform affiliate cookware?",
+                  a: "Platform affiliate menghubungkan Anda ke merchant partner terpercaya. Kami mengkurasi produk, menulis panduan, lalu Anda bisa membeli dari tautan partner yang tersedia.",
+                },
+                {
+                  q: "Bagaimana memilih wajan anti lengket terbaik?",
+                  a: "Perhatikan material inti, kualitas lapisan non-stick, kompatibilitas kompor, dan ketahanan suhu. Anda bisa mulai dari section Panduan lalu cocokkan kebutuhan memasak harian Anda.",
+                },
+                {
+                  q: "Apakah harga di RYCH selalu paling murah?",
+                  a: "Kami berupaya menampilkan penawaran kompetitif dari partner, namun harga dapat berubah sewaktu-waktu mengikuti promo merchant masing-masing.",
+                },
+                {
+                  q: "Apakah RYCH mendapat komisi affiliate?",
+                  a: "Ya. Kami dapat menerima komisi dari transaksi melalui tautan affiliate, tanpa biaya tambahan bagi Anda.",
+                },
+              ].map((item) => (
+                <details
+                  key={item.q}
+                  data-reveal="up"
+                  style={{
+                    background: C.white,
+                    border: `1px solid ${C.lightGray}`,
+                    padding: "20px 24px",
+                  }}
+                >
+                  <summary
+                    style={{
+                      fontFamily: UI_FONT,
+                      fontSize: 18,
+                      color: C.charcoal,
+                      cursor: "pointer",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {item.q}
+                  </summary>
+                  <p
+                    style={{
+                      marginTop: 12,
+                      fontFamily: BODY_FONT,
+                      fontSize: 16,
+                      lineHeight: 1.75,
+                      color: C.medGray,
+                    }}
+                  >
+                    {item.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════ SEO AFFILIATE CONTENT ════════════ */}
+        <section
+          id="seo-affiliate"
+          style={{ padding: "120px 0", background: C.white }}
+        >
+          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
+            <div data-reveal="up" style={{ marginBottom: 48 }}>
+              <div
+                className="js-divider"
+                style={{
+                  width: 48,
+                  height: 2,
+                  background: C.terracotta,
+                  marginBottom: 24,
+                }}
+              />
+              <h2
+                style={{
+                  fontFamily: HEADING_FONT,
+                  fontWeight: 300,
+                  fontSize: "clamp(30px,3.5vw,46px)",
+                  lineHeight: 1.1,
+                  color: C.charcoal,
+                  maxWidth: 760,
+                }}
+              >
+                SEO (Search Engine Optimization) untuk Affiliate
+              </h2>
+              <p
+                style={{
+                  fontFamily: BODY_FONT,
+                  fontSize: 17,
+                  lineHeight: 1.75,
+                  color: C.medGray,
+                  marginTop: 16,
+                  maxWidth: 760,
+                }}
+              >
+                Kami menyusun konten affiliate agar lebih mudah ditemukan di
+                Google, dengan preview product yang jelas, link pembelian yang
+                langsung ke marketplace, serta optimasi caption dan hashtag
+                untuk sosial media.
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 20,
+              }}
+            >
+              {[
+                {
+                  title: "SEO",
+                  text: "Struktur judul, deskripsi, dan internal link dibuat untuk intent pencarian Indonesia yang lebih relevan.",
+                },
+                {
+                  title: "Preview Product",
+                  text: "Menampilkan ringkasan produk agar pengunjung cepat memahami value sebelum klik ke marketplace.",
+                },
+                {
+                  title: "Link Pembelian",
+                  text: "Tautan pembelian diarahkan ke marketplace partner supaya proses checkout lebih cepat dan terukur.",
+                },
+                {
+                  title: "Optimasi caption dan hashtag",
+                  text: "Caption dan hashtag dirapikan untuk mendukung jangkauan konten di TikTok dan Instagram.",
+                },
+              ].map((item) => (
+                <article
+                  key={item.title}
+                  data-reveal="up"
+                  style={{
+                    background: C.offWhite,
+                    border: `1px solid ${C.lightGray}`,
+                    padding: "28px",
+                    boxShadow: shadowCard,
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: UI_FONT,
+                      fontSize: 18,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      color: C.charcoal,
+                      marginBottom: 12,
+                    }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: BODY_FONT,
+                      fontSize: 16,
+                      lineHeight: 1.75,
+                      color: C.medGray,
+                      margin: 0,
+                    }}
+                  >
+                    {item.text}
+                  </p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ════════════ BRAND QUOTE BANNER ════════════ */}
         <section
+          id="tentang-kami"
           data-reveal="scale"
           style={{
             padding: "120px 32px",
@@ -1161,8 +1352,9 @@ export default function Home() {
             <br />
             Peralatan Anda adalah kanvasnya.
           </h2>
-          <button
+          <a
             className="btn-primary"
+            href="#koleksi"
             style={{
               position: "relative",
               zIndex: 1,
@@ -1171,99 +1363,18 @@ export default function Home() {
             }}
           >
             Temukan Koleksi
-          </button>
+          </a>
         </section>
       </main>
 
-      {/* ════════════ FOOTER ════════════ */}
-      <footer style={{ padding: "80px 32px", background: "#efeeea" }}>
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 32,
-            textAlign: "center",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: HEADING_FONT,
-              fontSize: 28,
-              fontWeight: 300,
-              color: C.charcoal,
-            }}
-          >
-            RYCH
-          </span>
-          <nav
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: 32,
-            }}
-          >
-            {[
-              "Kebijakan Privasi",
-              "Syarat & Ketentuan",
-              "Hubungi Kami",
-              "Affiliate Disclosure",
-            ].map((link) => (
-              <a key={link} href="#" className="footer-link">
-                {link}
-              </a>
-            ))}
-          </nav>
-          <p style={{ fontFamily: BODY_FONT, fontSize: 15, color: C.medGray }}>
-            © 2026 RYCH. Kualitas premium untuk dapur modern Indonesia.
-          </p>
-        </div>
-      </footer>
-
-      {/* ════════════ RESPONSIVE STYLES ════════════ */}
-      <style>{`
-        /* Hide hamburger on desktop, show desktop-nav and cta */
-        @media (min-width: 768px) {
-          .desktop-nav { display: flex !important; }
-          .desktop-cta { display: inline-flex !important; }
-          .hamburger   { display: none !important; }
-        }
-        /* On mobile, hide desktop nav + cta, show hamburger */
-        @media (max-width: 767px) {
-          .desktop-nav { display: none !important; }
-          .desktop-cta { display: none !important; }
-          .hamburger   { display: flex !important; }
-          /* Stack feature rows */
-          .feature-row {
-            grid-template-columns: 1fr !important;
-            gap: 40px !important;
-          }
-          /* Stack bento grid */
-          .js-bento-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .js-bento {
-            grid-column: span 1 !important;
-          }
-          /* Stack ergonomic card */
-          .js-bento:last-child {
-            flex-direction: column !important;
-          }
-          .js-bento:last-child > div:last-child {
-            width: 100% !important;
-          }
-          /* Narrower padding */
-          section > div,
-          footer > div,
-          header > div {
-            padding-left: 20px !important;
-            padding-right: 20px !important;
-          }
-        }
-      `}</style>
-    </>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+    </LandingLayout>
   );
 }
