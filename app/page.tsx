@@ -31,10 +31,11 @@ const C = {
 const shadowCard = "0px 2px 8px rgba(53,49,46,0.08)";
 const shadowHover = "0px 8px 16px rgba(53,49,46,0.12)";
 
-/* ─── Reusable inline-styled components ────────────────── */
-const HEADING_FONT = "var(--font-newsreader), Georgia, serif";
-const UI_FONT = "var(--font-hanken-grotesk), sans-serif";
-const BODY_FONT = "var(--font-source-sans-3), sans-serif";
+/* ─── Font constants matching globals.css CSS variables ─── */
+const HEADING_FONT = "var(--font-heading)";
+const UI_FONT      = "var(--font-ui)";
+const BODY_FONT    = "var(--font-body)";
+
 
 export default function Home() {
   const heroSectionRef = useRef<HTMLElement>(null);
@@ -232,7 +233,7 @@ export default function Home() {
               letterSpacing: "-0.02em",
             }}
           >
-            Carote
+            RYCH
           </span>
 
           {/* Desktop nav */}
@@ -420,7 +421,7 @@ export default function Home() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={HERO_IMG}
-              alt="Carote Premium Cookware Collection"
+              alt="RYCH Premium Cookware Collection"
               style={{
                 width: "100%",
                 height: "100%",
@@ -541,7 +542,7 @@ export default function Home() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={FEATURE1_IMG}
-                  alt="Minimalist Carote Pan"
+                  alt="Minimalist RYCH Pan"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -599,7 +600,7 @@ export default function Home() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={FEATURE2_IMG}
-                  alt="Cooking with Carote"
+                  alt="Cooking with RYCH"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -1195,7 +1196,7 @@ export default function Home() {
               color: C.charcoal,
             }}
           >
-            Carote
+            RYCH
           </span>
           <nav
             style={{
@@ -1217,7 +1218,7 @@ export default function Home() {
             ))}
           </nav>
           <p style={{ fontFamily: BODY_FONT, fontSize: 15, color: C.medGray }}>
-            © 2024 Carote. Kualitas premium untuk dapur modern Indonesia.
+            © 2026 RYCH. Kualitas premium untuk dapur modern Indonesia.
           </p>
         </div>
       </footer>

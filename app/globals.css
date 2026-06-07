@@ -1,27 +1,30 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────
-   DESIGN TOKENS — Carote / Our Place
+   DESIGN TOKENS — RYCH / Our Place
    ──────────────────────────────────────────── */
 :root {
-  --font-newsreader:    var(--font-newsreader);
-  --font-hanken:        var(--font-hanken-grotesk);
-  --font-source-sans:   var(--font-source-sans-3);
+  /* Font families — using Google Fonts CDN names directly */
+  --font-heading: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui: "Hanken Grotesk", "Segoe UI", sans-serif;
+  --font-body: "Source Sans 3", "Open Sans", sans-serif;
 
-  --charcoal:     #35312E;
-  --terracotta:   #AF5A3C;
-  --off-white:    #FCFAF6;
-  --white:        #FFFFFF;
-  --light-gray:   #E6E6E6;
-  --med-gray:     #60605E;
-  --cream:        #EBE5D4;
-  --dark-gray:    #1C1A1A;
+  --charcoal: #35312e;
+  --terracotta: #af5a3c;
+  --off-white: #fcfaf6;
+  --white: #ffffff;
+  --light-gray: #e6e6e6;
+  --med-gray: #60605e;
+  --cream: #ebe5d4;
+  --dark-gray: #1c1a1a;
 }
 
 /* ────────────────────────────────────────────
    GLOBAL RESET
    ──────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -34,7 +37,7 @@ html {
 body {
   background: var(--off-white);
   color: var(--charcoal);
-  font-family: var(--font-source-sans-3), "Open Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -50,7 +53,11 @@ body {
    MATERIAL SYMBOLS
    ──────────────────────────────────────────── */
 .material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 300,
+    "GRAD" 0,
+    "opsz" 24;
   user-select: none;
   display: inline-block;
   vertical-align: middle;
@@ -63,31 +70,35 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #35312E;
+  background: #35312e;
   color: #fff;
-  font-family: var(--font-hanken-grotesk), sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 14px 32px;
-  border: 2px solid #35312E;
+  border: 2px solid #35312e;
   border-radius: 0;
   cursor: pointer;
-  transition: background 0.28s ease, border-color 0.28s ease, color 0.28s ease, transform 0.12s ease;
+  transition:
+    background 0.28s ease,
+    border-color 0.28s ease,
+    color 0.28s ease,
+    transform 0.12s ease;
   text-decoration: none;
   white-space: nowrap;
   line-height: 1;
 }
 .btn-primary:hover {
-  background: #1C1A1A;
-  border-color: #1C1A1A;
+  background: #1c1a1a;
+  border-color: #1c1a1a;
 }
 .btn-primary:active {
   transform: scale(0.97);
 }
 .btn-primary:focus-visible {
-  outline: 2px solid #AF5A3C;
+  outline: 2px solid #af5a3c;
   outline-offset: 3px;
 }
 
@@ -96,25 +107,29 @@ body {
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: #35312E;
-  font-family: var(--font-hanken-grotesk), sans-serif;
+  color: #35312e;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 14px 32px;
-  border: 2px solid #35312E;
+  border: 2px solid #35312e;
   border-radius: 0;
   cursor: pointer;
-  transition: background 0.28s ease, color 0.28s ease, transform 0.12s ease, box-shadow 0.28s ease;
+  transition:
+    background 0.28s ease,
+    color 0.28s ease,
+    transform 0.12s ease,
+    box-shadow 0.28s ease;
   text-decoration: none;
   white-space: nowrap;
   line-height: 1;
 }
 .btn-secondary:hover {
-  background: #35312E;
+  background: #35312e;
   color: #fff;
-  box-shadow: 0px 8px 16px rgba(53,49,46,0.12);
+  box-shadow: 0px 8px 16px rgba(53, 49, 46, 0.12);
 }
 .btn-secondary:active {
   transform: scale(0.97);
@@ -124,12 +139,12 @@ body {
    NAV LINKS
    ──────────────────────────────────────────── */
 .nav-link {
-  font-family: var(--font-hanken-grotesk), sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #35312E;
+  color: #35312e;
   text-decoration: none;
   position: relative;
   padding-bottom: 2px;
@@ -142,11 +157,11 @@ body {
   left: 0;
   width: 0;
   height: 2px;
-  background: #AF5A3C;
+  background: #af5a3c;
   transition: width 0.25s ease;
 }
 .nav-link:hover {
-  color: #AF5A3C;
+  color: #af5a3c;
 }
 .nav-link:hover::after {
   width: 100%;
@@ -156,14 +171,14 @@ body {
    FOOTER LINKS
    ──────────────────────────────────────────── */
 .footer-link {
-  font-family: var(--font-source-sans-3), sans-serif;
+  font-family: var(--font-body);
   font-size: 15px;
-  color: #60605E;
+  color: #60605e;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 .footer-link:hover {
-  color: #AF5A3C;
+  color: #af5a3c;
 }
 
 /* ────────────────────────────────────────────
@@ -173,8 +188,10 @@ body {
   display: block;
   width: 22px;
   height: 1.5px;
-  background: #35312E;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  background: #35312e;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 .hamburger.open .hamburger-line:nth-child(1) {
   transform: translateY(6.5px) rotate(45deg);
@@ -204,6 +221,13 @@ body {
 /* ────────────────────────────────────────────
    LENIS COMPAT
    ──────────────────────────────────────────── */
-html.lenis, html.lenis body { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-stopped { overflow: hidden; }
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}

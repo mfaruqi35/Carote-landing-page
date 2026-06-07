@@ -1,28 +1,5 @@
 import type { Metadata } from "next";
-import { Newsreader, Hanken_Grotesk, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
-
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  style: ["normal", "italic"],
-  display: "swap",
-});
-
-const hankenGrotesk = Hanken_Grotesk({
-  variable: "--font-hanken-grotesk",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
-const sourceSans3 = Source_Sans_3({
-  variable: "--font-source-sans-3",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Carote - Kualitas Premium untuk Dapur Anda",
@@ -36,17 +13,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="id"
-      className={`${newsreader.variable} ${hankenGrotesk.variable} ${sourceSans3.variable} antialiased`}
-    >
+    <html lang="id">
       <head>
+        {/* Google Fonts — same as reference design */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
+          href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Source+Sans+3:wght@400;500;600&display=swap"
           rel="stylesheet"
+        />
+        {/* Material Symbols */}
+        <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+          rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#fbf9f5] text-[#1b1c1a] overflow-x-hidden">
+      <body>
         {children}
       </body>
     </html>
