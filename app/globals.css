@@ -1,26 +1,209 @@
 @import "tailwindcss";
 
+/* ────────────────────────────────────────────
+   DESIGN TOKENS — Carote / Our Place
+   ──────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-newsreader:    var(--font-newsreader);
+  --font-hanken:        var(--font-hanken-grotesk);
+  --font-source-sans:   var(--font-source-sans-3);
+
+  --charcoal:     #35312E;
+  --terracotta:   #AF5A3C;
+  --off-white:    #FCFAF6;
+  --white:        #FFFFFF;
+  --light-gray:   #E6E6E6;
+  --med-gray:     #60605E;
+  --cream:        #EBE5D4;
+  --dark-gray:    #1C1A1A;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ────────────────────────────────────────────
+   GLOBAL RESET
+   ──────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--off-white);
+  color: var(--charcoal);
+  font-family: var(--font-source-sans-3), "Open Sans", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
+
+::selection {
+  background: #97472b;
+  color: #fff;
+}
+
+/* ────────────────────────────────────────────
+   MATERIAL SYMBOLS
+   ──────────────────────────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+  user-select: none;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ────────────────────────────────────────────
+   BUTTONS
+   ──────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #35312E;
+  color: #fff;
+  font-family: var(--font-hanken-grotesk), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border: 2px solid #35312E;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.28s ease, border-color 0.28s ease, color 0.28s ease, transform 0.12s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+.btn-primary:hover {
+  background: #1C1A1A;
+  border-color: #1C1A1A;
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+.btn-primary:focus-visible {
+  outline: 2px solid #AF5A3C;
+  outline-offset: 3px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #35312E;
+  font-family: var(--font-hanken-grotesk), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border: 2px solid #35312E;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.28s ease, color 0.28s ease, transform 0.12s ease, box-shadow 0.28s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+.btn-secondary:hover {
+  background: #35312E;
+  color: #fff;
+  box-shadow: 0px 8px 16px rgba(53,49,46,0.12);
+}
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* ────────────────────────────────────────────
+   NAV LINKS
+   ──────────────────────────────────────────── */
+.nav-link {
+  font-family: var(--font-hanken-grotesk), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #35312E;
+  text-decoration: none;
+  position: relative;
+  padding-bottom: 2px;
+  transition: color 0.2s ease;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #AF5A3C;
+  transition: width 0.25s ease;
+}
+.nav-link:hover {
+  color: #AF5A3C;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* ────────────────────────────────────────────
+   FOOTER LINKS
+   ──────────────────────────────────────────── */
+.footer-link {
+  font-family: var(--font-source-sans-3), sans-serif;
+  font-size: 15px;
+  color: #60605E;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.footer-link:hover {
+  color: #AF5A3C;
+}
+
+/* ────────────────────────────────────────────
+   HAMBURGER
+   ──────────────────────────────────────────── */
+.hamburger-line {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: #35312E;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.hamburger.open .hamburger-line:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+.hamburger.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open .hamburger-line:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* ────────────────────────────────────────────
+   MOBILE NAV DRAWER
+   ──────────────────────────────────────────── */
+.mobile-nav {
+  position: fixed;
+  inset: 65px 0 0 0;
+  background: #fff;
+  z-index: 45;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mobile-nav.open {
+  transform: translateX(0);
+}
+
+/* ────────────────────────────────────────────
+   LENIS COMPAT
+   ──────────────────────────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
